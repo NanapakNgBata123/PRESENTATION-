@@ -1,0 +1,2 @@
+# Keep main.py byte-identical on every machine so its published SHA-256 holds.
+* text=auto eol=lf

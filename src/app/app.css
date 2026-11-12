@@ -1,0 +1,759 @@
+/* Payroll app: an operating surface. Precise, fast, the security-print world in the details. */
+
+code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+}
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 3vw, 40px);
+  min-height: 64px;
+  padding: 0 var(--gutter);
+  background: var(--paper);
+  border-bottom: 3px double var(--ink);
+}
+
+.bar__mark {
+  font-weight: 820;
+  font-stretch: 125%;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.bar__nav {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.bar__nav a {
+  padding-block: 0.35rem;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+
+.bar__nav a:hover {
+  border-bottom-color: var(--hair);
+}
+
+.bar__nav a[aria-current="page"] {
+  font-weight: 650;
+  border-bottom-color: var(--ink);
+}
+
+.bar__status {
+  margin: 0 0 0 auto;
+  font: 500 0.8125rem/1.2 var(--mono);
+  color: var(--ink-soft);
+  text-align: right;
+}
+
+.bar__status span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+}
+
+.bar__status[data-state="ready"] {
+  color: var(--green);
+}
+
+.bar__status[data-state="error"] {
+  color: var(--serial);
+}
+
+.link-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+/* Layout */
+
+.desk {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: clamp(28px, 4vw, 64px);
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: clamp(20px, 2.4vw, 44px) var(--gutter) 72px;
+  align-items: start;
+}
+
+.sheet__intro h1 {
+  margin: 0;
+  font-weight: 820;
+  font-stretch: 125%;
+  font-size: clamp(2rem, 3vw, 3rem);
+  line-height: 0.95;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+}
+
+.sheet__intro p {
+  max-width: 54ch;
+  margin: 0.7rem 0 0;
+  color: var(--ink-soft);
+}
+
+fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  margin-bottom: 0.85rem;
+  padding: 0;
+  font-weight: 780;
+  font-stretch: 75%;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 1.15rem;
+}
+
+.section-title::after {
+  content: "";
+  flex: 1;
+  height: 3px;
+  border-block: 1px solid var(--ink);
+}
+
+/* Rates */
+
+.rates {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem 1.25rem;
+  margin-top: 1.75rem;
+}
+
+.rates > legend {
+  float: left;
+  grid-column: 1 / -1;
+}
+
+.field label {
+  display: grid;
+  gap: 0.2rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.field label code {
+  font-weight: 500;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.field__input {
+  display: flex;
+  align-items: center;
+  height: 52px;
+  padding: 0 0.85rem;
+  background: var(--paper-lift);
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+}
+
+.field__input:focus-within {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.field__input[data-invalid] {
+  border-color: var(--serial);
+  box-shadow: inset 0 0 0 1px var(--serial);
+}
+
+.field__input span {
+  margin-right: 0.35rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.field__input input,
+.ledger__name input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: 600 1.2rem/1 var(--sans);
+  font-variant-numeric: tabular-nums;
+}
+
+.field__input input:focus,
+.ledger__name input:focus {
+  outline: none;
+}
+
+.field__error {
+  margin: 0.4rem 0 0;
+  color: var(--serial);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Ledger: one identical Mon-Fri strip per row, read top to bottom like a ruler. */
+
+.ledger {
+  margin-top: 2rem;
+}
+
+.ledger__head,
+.ledger__row {
+  display: grid;
+  grid-template-columns: minmax(7rem, 1fr) repeat(5, calc(5.55rem + 2px)) 2.75rem;
+  align-items: center;
+  column-gap: 0.6rem;
+}
+
+.ledger__head {
+  padding: 0 0.5rem 0.5rem;
+  font: 600 0.75rem/1 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.ledger__head span:not(:first-child) {
+  text-align: center;
+}
+
+.ledger__row {
+  overflow: hidden;
+  padding: 0.55rem 0.5rem;
+  border-top: 1px solid var(--hair);
+  transition: background-color 0.18s;
+}
+
+.ledger__row:last-of-type {
+  border-bottom: 1px solid var(--hair);
+}
+
+.ledger__row[data-active] {
+  background: color-mix(in srgb, var(--gold) 22%, transparent);
+}
+
+.ledger__name input {
+  height: 44px;
+  padding: 0 0.5rem;
+  font-size: 1.1rem;
+  border-bottom: 1px solid var(--hair);
+}
+
+.ledger__name input::placeholder {
+  color: var(--ink-soft);
+  opacity: 0.75;
+}
+
+.ledger__name input:focus-visible {
+  border-bottom-color: var(--ink);
+  box-shadow: 0 2px 0 -1px var(--focus);
+}
+
+.ledger__name input[aria-invalid] {
+  border-bottom-color: var(--serial);
+}
+
+.day {
+  display: inline-flex;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+}
+
+.day__label {
+  display: none;
+}
+
+.opt {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 1.85rem;
+  height: 2.4rem;
+  font: 700 0.9rem/1 var(--mono);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: background-color 0.12s, color 0.12s;
+}
+
+.opt + .opt {
+  border-left: 1px solid var(--hair);
+}
+
+.opt input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.opt:hover {
+  background: var(--paper-deep);
+  color: var(--ink);
+}
+
+.opt:has(input:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  z-index: 1;
+}
+
+.opt:has(input:checked) {
+  color: var(--paper);
+}
+
+.opt[data-code="P"]:has(input:checked) {
+  background: var(--ink);
+}
+
+.opt[data-code="A"]:has(input:checked) {
+  background: var(--serial);
+}
+
+.opt[data-code="L"]:has(input:checked) {
+  background: var(--gold-ink);
+}
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.icon-btn:hover:not(:disabled) {
+  border-color: var(--serial);
+  color: var(--serial);
+}
+
+.icon-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.btn--quiet {
+  border-color: var(--hair);
+}
+
+.ledger__legend {
+  margin: 0.6rem 0 0;
+  font-size: 0.875rem;
+  color: var(--ink-soft);
+}
+
+/* The ledger closes on its action, like the total line of a pay sheet. */
+.ledger__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 3px double var(--ink);
+}
+
+.btn--issue {
+  margin-left: auto;
+  min-width: 12rem;
+  justify-content: center;
+  padding-block: 1.1em;
+  font-size: 1.1rem;
+}
+
+/* Output column */
+
+.notes {
+  position: sticky;
+  top: 88px;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 104px);
+}
+
+.tabs {
+  display: flex;
+  gap: 1.5rem;
+  border-bottom: 1px solid var(--ink);
+}
+
+.tab {
+  position: relative;
+  padding: 0.7rem 0;
+  border: 0;
+  background: none;
+  color: var(--ink-soft);
+  font: 650 1rem/1 var(--sans);
+  font-stretch: 112%;
+  cursor: pointer;
+}
+
+.tab[aria-selected="true"] {
+  color: var(--ink);
+}
+
+.tab__ink {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 3px;
+  background: var(--ink);
+}
+
+.output {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 1.25rem 2px 2px;
+}
+
+.empty {
+  padding: 2rem 1.5rem;
+  border: 1px dashed var(--ink-soft);
+  border-radius: 2px;
+  color: var(--ink-soft);
+}
+
+.empty__title {
+  margin: 0 0 0.4rem;
+  font-weight: 760;
+  font-stretch: 112%;
+  font-size: 1.2rem;
+  color: var(--ink);
+}
+
+.empty p:last-child {
+  margin: 0;
+  max-width: 44ch;
+}
+
+.notice {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 1rem 1.15rem;
+  border: 1px solid var(--serial);
+  color: var(--serial);
+  background: color-mix(in srgb, var(--serial) 7%, var(--paper));
+}
+
+.notice p {
+  margin: 0;
+}
+
+.console {
+  margin: 0;
+  padding: 1.25rem;
+  min-height: 100%;
+  background: var(--paper-lift);
+  border: 1px solid var(--ink);
+  font: 500 0.875rem/1.55 var(--mono);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Pay notes */
+
+.paynotes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+
+.paynote {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "head head"
+    "name amount"
+    "strip amount"
+    "counts amount";
+  gap: 0.35rem 1rem;
+  padding: 1.1rem 1.25rem 1.2rem;
+  background: var(--paper-lift);
+  border: 1px solid var(--ink);
+  transition: background-color 0.18s;
+}
+
+/* Inner rule: the double frame of printed notes. */
+.paynote::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid var(--hair);
+  pointer-events: none;
+}
+
+.paynote[data-active] {
+  background: color-mix(in srgb, var(--gold) 26%, var(--paper-lift));
+}
+
+.paynote__head {
+  grid-area: head;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem 1rem;
+}
+
+.paynote__serial {
+  white-space: nowrap;
+  font: 600 0.8rem/1 var(--mono);
+  letter-spacing: 0.1em;
+  color: var(--serial);
+}
+
+.stamp {
+  padding: 0.3rem 0.55rem;
+  border: 2px solid var(--green);
+  border-radius: 2px;
+  color: var(--green);
+  font: 700 0.72rem/1 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transform: rotate(-3deg) translate(1px, -1px);
+}
+
+.paynote__name {
+  grid-area: name;
+  margin: 0.4rem 0 0;
+  font-weight: 780;
+  font-stretch: 112%;
+  font-size: 1.45rem;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.strip {
+  grid-area: strip;
+  display: flex;
+  gap: 4px;
+  margin: 0.35rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.strip li {
+  display: grid;
+  justify-items: center;
+  width: 2.1rem;
+  padding: 0.25rem 0 0.3rem;
+  border: 1px solid var(--hair);
+  font: 600 0.65rem/1 var(--mono);
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+
+.strip b {
+  margin-top: 0.25rem;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
+.strip li[data-code="A"] {
+  border-color: var(--serial);
+}
+
+.strip li[data-code="A"] b {
+  color: var(--serial);
+}
+
+.strip li[data-code="L"] b {
+  color: var(--gold-ink);
+}
+
+.paynote__counts {
+  grid-area: counts;
+  margin: 0.4rem 0 0;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.paynote__amount {
+  grid-area: amount;
+  align-self: end;
+  margin: 0;
+  font-weight: 820;
+  font-stretch: 125%;
+  font-size: clamp(1.6rem, 2.4vw, 2.2rem);
+  line-height: 1;
+}
+
+.paynote--total {
+  grid-template-columns: 1fr minmax(0, 13rem);
+  grid-template-areas: "text rosette";
+  align-items: center;
+  padding-block: 1.4rem;
+  border-width: 2px;
+}
+
+.paynote__total-text {
+  grid-area: text;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.paynote__total-text > * {
+  grid-area: auto;
+}
+
+.paynote__amount--total {
+  font-size: clamp(2.2rem, 3.8vw, 3.4rem);
+}
+
+.paynote__rosette {
+  grid-area: rosette;
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 2rem;
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 1.5rem var(--gutter) 2.5rem;
+  border-top: 1px solid var(--hair);
+  font-size: 0.875rem;
+  color: var(--ink-soft);
+}
+
+.foot p {
+  margin: 0;
+}
+
+.foot__hash code {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1080px) {
+  .desk {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .notes {
+    position: static;
+    max-height: none;
+  }
+
+  .output {
+    overflow: visible;
+  }
+}
+
+@media (max-width: 720px) {
+  .bar {
+    flex-wrap: wrap;
+    row-gap: 0.25rem;
+    padding-block: 0.6rem;
+  }
+
+  .bar__status {
+    flex-basis: 100%;
+    text-align: left;
+  }
+
+  .rates {
+    grid-template-columns: 1fr;
+  }
+
+  .ledger__head {
+    display: none;
+  }
+
+  .ledger__row {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    row-gap: 0.6rem;
+    padding-inline: 0;
+  }
+
+  .ledger__name {
+    grid-column: 1 / 5;
+  }
+
+  .ledger__row .icon-btn {
+    grid-column: 5;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .day {
+    flex-direction: column;
+    border: 0;
+  }
+
+  .day__label {
+    display: block;
+    padding-bottom: 0.3rem;
+    font: 600 0.7rem/1 var(--mono);
+    text-align: center;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .opt {
+    width: 100%;
+    height: 2.75rem;
+    border: 1px solid var(--ink);
+  }
+
+  .opt + .opt {
+    border-left: 1px solid var(--ink);
+    border-top: 0;
+  }
+
+  .btn--issue {
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+
+  .paynote {
+    grid-template-columns: 1fr;
+    grid-template-areas: "head" "name" "strip" "counts" "amount";
+  }
+
+  .paynote__amount {
+    justify-self: start;
+    margin-top: 0.5rem;
+  }
+
+  .paynote--total {
+    grid-template-columns: minmax(0, 1fr) 4.5rem;
+    grid-template-areas: "text rosette";
+  }
+
+  .paynote__amount--total {
+    font-size: clamp(1.8rem, 8.4vw, 3.4rem);
+  }
+}

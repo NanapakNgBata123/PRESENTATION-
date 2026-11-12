@@ -1,0 +1,703 @@
+/* Presentation: an experience surface. The note leads; each section owns a denomination field. */
+
+:root {
+  --edge: clamp(20px, 5vw, 80px);
+  --underprint: repeating-linear-gradient(118deg, rgb(61 110 58 / 0.07) 0 1px, transparent 1px 7px);
+  --underprint-ink: repeating-linear-gradient(118deg, rgb(28 35 51 / 0.07) 0 1px, transparent 1px 7px);
+  --underprint-paper: repeating-linear-gradient(118deg, rgb(233 238 228 / 0.09) 0 1px, transparent 1px 7px);
+  /* Engine-turned lathe rings: concentric hairlines centred off to one side, as in note underprint. */
+  --lathe-ink: repeating-radial-gradient(circle at 92% 50%, rgb(28 35 51 / 0.08) 0 1px, transparent 1px 11px);
+  --lathe-paper: repeating-radial-gradient(circle at 92% 50%, rgb(233 238 228 / 0.1) 0 1px, transparent 1px 11px);
+  --lathe-green: repeating-radial-gradient(circle at 92% 50%, rgb(61 110 58 / 0.08) 0 1px, transparent 1px 11px);
+}
+
+.deck h2 {
+  margin: 0;
+  font-weight: 820;
+  font-stretch: 125%;
+  font-size: clamp(2.2rem, 4.6vw, 4.8rem);
+  line-height: 0.95;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+}
+
+code {
+  font-family: var(--mono);
+}
+
+/* Cover: the note itself */
+
+.cover {
+  display: grid;
+  min-height: 100dvh;
+  padding: 14px;
+  perspective: 1600px;
+}
+
+.cover__note {
+  --ovi: 0.25;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  grid-template-rows: auto auto 1fr auto auto auto;
+  grid-template-areas:
+    "micro micro"
+    "title serial"
+    "denom ."
+    "sign sign"
+    "keys keys"
+    "micro2 micro2";
+  row-gap: 1.25rem;
+  padding: clamp(22px, 3vw, 44px) clamp(24px, 3.6vw, 56px);
+  overflow: hidden;
+  border: 1px solid var(--ink);
+  outline: 1px solid var(--ink);
+  outline-offset: -8px;
+  background-image: var(--underprint);
+  transform-style: preserve-3d;
+}
+
+.cover__micro {
+  grid-area: micro;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--hair);
+}
+
+.cover__micro--end {
+  grid-area: micro2;
+  padding: 0.4rem 0 0;
+  border-top: 1px solid var(--hair);
+  border-bottom: 0;
+}
+
+.cover__title {
+  position: relative;
+  z-index: 1;
+  grid-area: title;
+  margin: 0.75rem 0 0;
+  font-weight: 830;
+  font-stretch: 125%;
+  font-size: clamp(2rem, 3.9vw, 4rem);
+  line-height: 0.96;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.cover__serial {
+  position: relative;
+  z-index: 1;
+  grid-area: serial;
+  justify-self: end;
+  margin: 0.9rem 0 0;
+  font: 600 clamp(1rem, 1.5vw, 1.45rem) / 1 var(--mono);
+  letter-spacing: 0.14em;
+  color: var(--serial);
+}
+
+.cover__rosette {
+  position: absolute;
+  top: 47%;
+  right: 1%;
+  z-index: 0;
+  width: min(66dvh, 46vw);
+  aspect-ratio: 1;
+  transform: translateY(-50%);
+}
+
+/* The denomination sits level with the rosette's centre, as on a note. */
+.cover__denom-wrap {
+  position: relative;
+  z-index: 1;
+  grid-area: denom;
+  align-self: center;
+}
+
+.cover__base {
+  position: relative;
+  z-index: 1;
+  grid-area: keys;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem 2rem;
+}
+
+.cover__keys {
+  margin: 0;
+  font: 500 0.8rem/1 var(--mono);
+  color: var(--ink-soft);
+}
+
+.cover__keys kbd {
+  display: inline-block;
+  margin: 0 0.15em;
+  padding: 0.25em 0.45em;
+  border: 1px solid var(--hair);
+  border-radius: 2px;
+  font: inherit;
+  color: var(--ink);
+}
+
+.cover__denom {
+  margin: 0;
+  font-weight: 860;
+  font-stretch: 125%;
+  font-size: clamp(3.2rem, 7.4vw, 8rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  /* Optically variable ink: shifts from bronze to green as the note tilts. */
+  color: color-mix(in oklab, var(--gold-ink), var(--green) calc(var(--ovi) * 100%));
+}
+
+.cover__peso {
+  margin-right: 0.04em;
+  font-size: 0.5em;
+  vertical-align: 0.62em;
+}
+
+.cover__cents {
+  font-size: 0.42em;
+  vertical-align: 1.05em;
+}
+
+.cover__caption {
+  margin: 0.8rem 0 0;
+  font-size: clamp(0.95rem, 1.1vw, 1.1rem);
+  color: var(--ink-soft);
+}
+
+.cover__sign {
+  position: relative;
+  z-index: 1;
+  grid-area: sign;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.sig__rule {
+  display: block;
+  width: min(100%, 17rem);
+  margin-bottom: 0.55rem;
+  border-top: 1px solid var(--ink);
+}
+
+.sig p,
+.cover__course {
+  margin: 0;
+  font-weight: 650;
+  font-size: clamp(0.95rem, 1.15vw, 1.15rem);
+}
+
+.cover__course {
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+/* Brief: gold field */
+
+.brief {
+  display: grid;
+  align-content: center;
+  gap: clamp(2.5rem, 7dvh, 5rem);
+  min-height: 100dvh;
+  padding: clamp(56px, 11dvh, 128px) var(--edge);
+  background: var(--lathe-ink), var(--underprint-ink), var(--gold);
+}
+
+.brief__quote {
+  margin: 0;
+}
+
+.brief__text {
+  max-width: 34ch;
+  margin: 0;
+  font-weight: 620;
+  font-size: clamp(1.7rem, 3.1vw, 3.05rem);
+  line-height: 1.15;
+  letter-spacing: -0.012em;
+}
+
+.brief__quote figcaption {
+  margin-top: 1.5rem;
+  font: 600 clamp(0.85rem, 1vw, 1rem) / 1.3 var(--mono);
+  letter-spacing: 0.04em;
+}
+
+.brief__req {
+  padding-top: 1.1rem;
+  border-top: 3px double var(--ink);
+}
+
+.brief__req h3 {
+  margin: 0 0 0.8rem;
+  font-weight: 650;
+  font-size: 1rem;
+}
+
+.brief__req ul {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.brief__req li {
+  padding: 0.2rem 1rem 0.2rem 0;
+  font-weight: 830;
+  font-stretch: 125%;
+  font-size: clamp(1rem, 1.85vw, 1.75rem);
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.brief__req li + li {
+  padding-left: 1rem;
+  border-left: 1px solid var(--ink);
+}
+
+/* Concepts: blue field, code on its own paper plane */
+
+.concepts {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: clamp(28px, 4vw, 72px);
+  padding: 0 var(--edge);
+  background: var(--lathe-paper), var(--underprint-paper), var(--blue);
+  color: var(--paper);
+}
+
+.code {
+  position: sticky;
+  top: 5dvh;
+  height: 90dvh;
+  margin-block: 5dvh;
+  overflow: auto;
+  background: var(--paper-lift);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  scrollbar-color: var(--ink-soft) var(--paper-deep);
+}
+
+.code__file {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: 0;
+  padding: 0.85rem 1.1rem;
+  background: var(--paper-lift);
+  border-bottom: 3px double var(--ink);
+  font: 600 0.8rem/1 var(--mono);
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+}
+
+.code ol {
+  margin: 0;
+  padding: 0.6rem 0 40dvh;
+  list-style: none;
+  font: 500 clamp(0.85rem, 1.45vw, 1.25rem) / 1.6 var(--mono);
+}
+
+.code li {
+  display: grid;
+  grid-template-columns: 3.1em minmax(0, 1fr);
+  padding-right: 1rem;
+  transition: background-color 0.3s;
+}
+
+.code li[data-on] {
+  background: color-mix(in srgb, var(--gold) 48%, transparent);
+}
+
+.code__ln {
+  padding-right: 1em;
+  text-align: right;
+  color: var(--ink-soft);
+  user-select: none;
+}
+
+.code code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.concepts__list {
+  padding-block: 22dvh 30dvh;
+}
+
+.concept {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100dvh;
+  opacity: 0.85;
+  transition: opacity 0.3s;
+}
+
+.concept[data-active] {
+  opacity: 1;
+}
+
+.concept h3 {
+  align-self: start;
+  margin: 0 0 1.25rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 3px double transparent;
+  font-weight: 830;
+  font-stretch: 125%;
+  font-size: clamp(2rem, 3.6vw, 4.6rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+  transition: border-color 0.3s;
+}
+
+.concept[data-active] h3 {
+  border-bottom-color: var(--paper);
+}
+
+.concept p {
+  max-width: 30ch;
+  margin: 0;
+  font-size: clamp(1.2rem, 1.9vw, 1.75rem);
+  line-height: 1.4;
+}
+
+.concept .concept__lines {
+  margin-top: 1.25rem;
+  font: 600 clamp(0.85rem, 1vw, 1rem) / 1.3 var(--mono);
+  letter-spacing: 0.03em;
+}
+
+/* Formula: paper, the arithmetic set like a ledger */
+
+.formula {
+  display: grid;
+  align-content: center;
+  gap: 1.75rem;
+  min-height: 100dvh;
+  padding: clamp(56px, 12dvh, 140px) var(--edge);
+  background-image: var(--lathe-green), var(--underprint);
+}
+
+.formula h2 {
+  max-width: 16ch;
+}
+
+.formula__rule {
+  max-width: 62ch;
+  margin: 0;
+  font-size: clamp(1.05rem, 1.3vw, 1.25rem);
+  color: var(--ink-soft);
+}
+
+.formula__rule code {
+  color: var(--ink);
+  font-size: 0.92em;
+}
+
+.formula__scroll {
+  margin-top: 1.5rem;
+  overflow-x: auto;
+}
+
+.formula__table {
+  width: 100%;
+  min-width: 860px;
+  border-collapse: collapse;
+}
+
+.formula__table thead th,
+.formula__table thead td {
+  padding: 0 0.4rem 1rem;
+  border-bottom: 3px double var(--ink);
+  font: 600 clamp(0.72rem, 0.92vw, 0.95rem) / 1.2 var(--mono);
+  text-align: center;
+}
+
+.formula__table tbody th {
+  padding: 1.3rem 1rem 1.3rem 0;
+  font-weight: 780;
+  font-stretch: 112%;
+  font-size: clamp(1.15rem, 1.7vw, 1.65rem);
+  text-align: left;
+}
+
+.formula__table tbody td {
+  padding: 1.3rem 0.4rem;
+  border-bottom: 1px solid var(--hair);
+  font-weight: 830;
+  font-stretch: 125%;
+  font-size: clamp(1.5rem, 2.8vw, 2.9rem);
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.formula__table .formula__op {
+  font-family: var(--mono);
+  font-stretch: normal;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+.formula__table tbody .formula__total {
+  background: color-mix(in srgb, var(--gold) 40%, transparent);
+  text-align: right;
+  padding-inline: 0.8rem;
+}
+
+/* Sample run: green field, the console printed on paper */
+
+.run {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: clamp(28px, 5vw, 80px);
+  min-height: 100dvh;
+  padding: clamp(48px, 9dvh, 112px) var(--edge);
+  background: var(--lathe-paper), var(--underprint-paper), var(--green);
+  color: var(--paper);
+}
+
+.run__text p {
+  max-width: 38ch;
+  margin: 1.5rem 0 0;
+  font-size: clamp(1.1rem, 1.4vw, 1.35rem);
+}
+
+.run .run__status {
+  font: 500 clamp(0.85rem, 1vw, 0.95rem) / 1.4 var(--mono);
+}
+
+.tape {
+  height: min(78dvh, 780px);
+  overflow: auto;
+  background: var(--paper-lift);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  outline: 1px solid var(--paper-lift);
+  outline-offset: 5px;
+}
+
+.tape pre {
+  margin: 0;
+  padding: 1.25rem 1.4rem 2rem;
+  font: 500 clamp(0.8rem, 1.3vw, 1.15rem) / 1.5 var(--mono);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.tape__blank {
+  padding: 1.4rem;
+}
+
+.tape__blank span {
+  display: block;
+  height: 0.7rem;
+  margin-bottom: 0.75rem;
+  background: var(--paper-deep);
+}
+
+/* Demo */
+
+.demo {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 1.75rem;
+  min-height: 100dvh;
+  padding: var(--edge);
+  background-image: var(--lathe-green), var(--underprint);
+}
+
+.deck .demo h2 {
+  font-size: clamp(3rem, 9vw, 8rem);
+  line-height: 0.88;
+}
+
+.demo p {
+  max-width: 34ch;
+  margin: 0;
+  font-size: clamp(1.15rem, 1.6vw, 1.5rem);
+}
+
+.demo__cta {
+  padding: 1.1em 1.6em;
+  font-size: clamp(1.05rem, 1.3vw, 1.3rem);
+}
+
+/* Close: the reverse of the note */
+
+.close {
+  display: grid;
+  min-height: 100dvh;
+  padding: 14px;
+}
+
+.close__note {
+  display: grid;
+  align-content: space-between;
+  gap: 2rem;
+  padding: clamp(22px, 3vw, 44px) clamp(24px, 3.6vw, 56px);
+  border: 1px solid var(--ink);
+  outline: 1px solid var(--ink);
+  outline-offset: -8px;
+  background-image: var(--underprint);
+}
+
+.deck .close h2 {
+  font-size: clamp(3.4rem, 10vw, 9rem);
+  line-height: 0.86;
+}
+
+.close__names {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 3rem;
+}
+
+.close__names p {
+  margin: 0;
+  font-weight: 680;
+  font-size: clamp(1.2rem, 2vw, 1.85rem);
+}
+
+.close__course {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.close__hash {
+  margin: 0;
+  font: 500 clamp(0.75rem, 0.9vw, 0.9rem) / 1.6 var(--mono);
+  color: var(--ink-soft);
+}
+
+.close__hash code {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.progress {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  height: 3px;
+  background: var(--ink);
+  transform: scaleX(0);
+  transform-origin: left;
+  pointer-events: none;
+}
+
+@media (max-width: 860px) {
+  .cover__note {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    grid-template-areas: "micro" "serial" "title" "rosette" "denom" "sign" "keys" "micro2";
+  }
+
+  .cover__keys {
+    display: none;
+  }
+
+  .cover__serial {
+    justify-self: start;
+  }
+
+  .cover__rosette {
+    position: relative;
+    top: auto;
+    right: auto;
+    grid-area: rosette;
+    justify-self: center;
+    width: min(78vw, 46dvh);
+    transform: none;
+  }
+
+  .cover__sign {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .cover__course {
+    justify-self: start;
+    text-align: left;
+  }
+
+  .brief__req ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 0.75rem;
+  }
+
+  .brief__req li:nth-child(3) {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .concepts {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .code {
+    top: 0;
+    height: 42dvh;
+    margin: 0 calc(var(--edge) * -1);
+  }
+
+  .concepts__list {
+    padding-block: 8dvh 20dvh;
+  }
+
+  .concept {
+    min-height: 58dvh;
+  }
+
+  /* Each row becomes a wrapped equation; the rule above already names the terms. */
+  .formula__table {
+    min-width: 0;
+  }
+
+  .formula__table thead {
+    display: none;
+  }
+
+  .formula__table tbody tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem 0.6rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--hair);
+  }
+
+  .formula__table tbody th {
+    width: 100%;
+    padding: 0;
+  }
+
+  .formula__table tbody td {
+    padding: 0;
+    border: 0;
+    font-size: clamp(1.4rem, 7vw, 2rem);
+  }
+
+  .formula__table tbody .formula__total {
+    padding: 0.15rem 0.4rem;
+  }
+
+  .run {
+    grid-template-columns: 1fr;
+  }
+
+  .tape {
+    height: 64dvh;
+  }
+}
